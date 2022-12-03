@@ -1,11 +1,8 @@
-use std::fmt::Display;
-
 use itertools::Itertools;
 
 use crate::error::AocResult;
-use crate::time_it::TimeIt;
 
-fn parse_input(fname: &str) -> AocResult<Vec<(i8, i8)>> {
+pub fn parse_input(fname: &str) -> AocResult<Vec<(i8, i8)>> {
   let s = std::fs::read(fname)?;
   let res = s
     .chunks_exact(4)
@@ -84,10 +81,6 @@ fn part2(input: &Vec<(i8, i8)>) -> AocResult<i64> {
 //  )
 //}
 
-pub fn run(fname: &str) -> AocResult<(impl Display, impl Display)> {
-  let mut t = TimeIt::new("parse");
-  t.tic();
-  let input = parse_input(fname)?;
-  t.toc();
-  Ok((part1(&input)?, part2(&input)?))
+pub fn run(input: &Vec<(i8, i8)>) -> AocResult<(i64, i64)> {
+  Ok((part1(input)?, part2(input)?))
 }

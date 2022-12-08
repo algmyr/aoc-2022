@@ -2,7 +2,7 @@ use std::fmt::Display;
 use std::time::Duration;
 
 use aoc::error::AocResult;
-use aoc::{aoc_benchmark, aoc_run, solutions};
+use aoc::{aoc_benchmark, aoc_run, solutions, aoc_run_batch};
 use itertools::Itertools;
 
 struct RunResult {
@@ -18,17 +18,32 @@ impl RunResult {
   }
 }
 
-fn run_all() -> AocResult<()> {
+fn pretty_time(duration: Duration) -> String {
+  let nanos = duration.as_nanos();
+  let (t, unit) = if nanos > 1_000_000_000 {
+    (nanos as f64 / 1e9, "s ")
+  } else if nanos > 1_000_000 {
+    (nanos as f64 / 1e6, "ms")
+  } else if nanos > 1_000 {
+    (nanos as f64 / 1e3, "us")
+  } else {
+    (nanos as f64 / 1e1, "ns")
+  };
+
+  format!("{t:7.3}{unit}")
+}
+
+fn run_all(n_runs: usize) -> AocResult<()> {
   let times = aoc_benchmark!(
-    @n_runs 100,
+    @n_runs n_runs,
     solutions::day01,
     solutions::day02,
     solutions::day03,
-    //solutions::day04,
-    //solutions::day05,
-    //solutions::day06,
-    //solutions::day07,
-    //solutions::day08,
+    solutions::day04,
+    solutions::day05,
+    solutions::day06,
+    solutions::day07,
+    solutions::day08,
     //solutions::day09,
     //solutions::day10,
     //solutions::day11,
@@ -47,21 +62,6 @@ fn run_all() -> AocResult<()> {
     //solutions::day24,
     //solutions::day25,
   );
-
-  fn pretty_time(duration: Duration) -> String {
-    let nanos = duration.as_nanos();
-    let (t, unit) = if nanos > 1_000_000_000 {
-      (nanos as f64 / 1e9, "s ")
-    } else if nanos > 1_000_000 {
-      (nanos as f64 / 1e6, "ms")
-    } else if nanos > 1_000 {
-      (nanos as f64 / 1e3, "us")
-    } else {
-      (nanos as f64 / 1e1, "ns")
-    };
-
-    format!("{t:7.3}{unit}")
-  }
 
   fn make_row(
     parse_elapsed: Duration,
@@ -122,13 +122,16 @@ fn run_all() -> AocResult<()> {
 
 fn main() -> AocResult<()> {
   let args: Vec<String> = std::env::args().collect();
+
+  let n_runs = args.get(2).map(|s| s.parse().unwrap()).unwrap_or(1);
+
   if args[1].starts_with("bench") {
-    run_all()?;
+    run_all(n_runs)?;
   } else {
-    let res = aoc_run!(solutions::day03, args[1], 1);
+    let res = aoc_run_batch!(solutions::day08, args[1], n_runs as u32);
     println!("Part 1: {}", res.part1_result);
     println!("Part 2: {}", res.part2_result);
-    println!("Elapsed: {:.3}ms", res.avg_elapsed().as_secs_f64() * 1e3);
+    println!("Elapsed: {}", pretty_time(res.avg_elapsed()));
   }
   Ok(())
 }

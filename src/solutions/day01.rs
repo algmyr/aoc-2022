@@ -1,21 +1,14 @@
-use itertools::Itertools;
+use bstr::ByteSlice;
 
 use crate::error::AocResult;
+use crate::utils::read_all_nums_from_bytes;
 
 pub fn parse_input(fname: &str) -> AocResult<Vec<Vec<i32>>> {
-  let f = std::fs::read_to_string(fname)?;
+  let f = std::fs::read(fname)?;
 
-  let vec = f
-    .split("\n\n")
-    .map(|group| {
-      group
-        .lines()
-        .map(|s| s.parse::<i32>().unwrap())
-        .collect_vec()
-    })
-    .collect_vec();
-
-  Ok(vec)
+  f.split_str(b"\n\n")
+    .map(|group| read_all_nums_from_bytes(group))
+    .collect::<AocResult<Vec<Vec<i32>>>>()
 }
 
 fn part1(input: &Vec<Vec<i32>>) -> AocResult<i32> {
@@ -39,7 +32,7 @@ fn top3(data: &Vec<Vec<i32>>) -> i32 {
     }
   }
 
-  small+medium+big
+  small + medium + big
 }
 
 fn part2(input: &Vec<Vec<i32>>) -> AocResult<i32> {
@@ -47,6 +40,4 @@ fn part2(input: &Vec<Vec<i32>>) -> AocResult<i32> {
   Ok(res)
 }
 
-pub fn run(input: &Vec<Vec<i32>>) -> AocResult<(i32, i32)> {
-  Ok((part1(input)?, part2(input)?))
-}
+pub fn run(input: &Vec<Vec<i32>>) -> AocResult<(i32, i32)> { Ok((part1(input)?, part2(input)?)) }

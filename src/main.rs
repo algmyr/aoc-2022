@@ -45,8 +45,8 @@ fn run_all(n_runs: usize) -> AocResult<()> {
     solutions::day07,
     solutions::day08,
     solutions::day09,
-    //solutions::day10,
-    //solutions::day11,
+    solutions::day10,
+    solutions::day11,
     //solutions::day12,
     //solutions::day13,
     //solutions::day14,
@@ -128,7 +128,7 @@ fn main() -> AocResult<()> {
   if args[1].starts_with("bench") {
     run_all(n_runs)?;
   } else {
-    let res = aoc_run_batch!(solutions::day09, args[1], n_runs as u32);
+    let res = aoc_run_batch!(solutions::day11, args[1], n_runs as u32);
     println!("Part 1: {}", res.part1_result);
     println!("Part 2: {}", res.part2_result);
     println!("Elapsed: {}", pretty_time(res.avg_elapsed()));

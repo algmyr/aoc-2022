@@ -2,6 +2,7 @@
 #![feature(array_windows)]
 //#![feature(generic_const_exprs)]
 #![feature(portable_simd)]
+#![feature(iter_collect_into)]
 
 pub mod benchmark;
 pub mod error;

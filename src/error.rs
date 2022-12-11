@@ -38,4 +38,5 @@ impl From<ParseIntError> for AocError {
 //  fn from(err: nom::Err<E>) -> AocError { AocError::ParserError(err.to_string()) }
 //}
 
-pub fn aoc_error(msg: &str) -> AocError { AocError::Custom(msg.to_owned()) }
+pub fn aoc_error_msg(msg: &str) -> AocError { AocError::Custom(msg.to_owned()) }
+pub fn aoc_error<T>(msg: &str) -> AocResult<T> { Err(aoc_error_msg(msg)) }

@@ -1,3 +1,4 @@
+use ahash::{HashMap, RandomState};
 use itertools::Itertools;
 
 use crate::error::AocResult;
@@ -167,34 +168,104 @@ fn part1(_: &()) -> AocResult<i32> {
   Ok(res)
 }
 
+//fn part2(_: &()) -> AocResult<i64> {
+//  let mut monkeys = monkeys!(input with i64);
+//
+//  let modulo: i64 = monkeys.iter().map(|m| m.div).unique().product();
+//
+//  let mut counts = vec![0i64; monkeys.len()]; // Can't use array here with monkeys.len()?
+//
+//  for monkey in &mut monkeys {
+//    monkey.items.reserve(40);
+//  }
+//
+//  for _ in 0..10000 {
+//    for i in 0..monkeys.len() {
+//      let (op, target, items) = {
+//        let monkey = &mut monkeys[i];
+//        (
+//          monkey.op,
+//          monkey.target,
+//          monkey.items.drain(..).collect_vec(),
+//        )
+//      };
+//      counts[i] += items.len() as i64;
+//      for item in items {
+//        let item = op(item);
+//        let item = item % modulo;
+//        let target = target(item);
+//        monkeys[target].items.push(item)
+//      }
+//    }
+//  }
+//
+//  let res = counts.into_iter().sorted().rev().take(2).product();
+//  Ok(res)
+//}
+
 fn part2(_: &()) -> AocResult<i64> {
-  let mut monkeys = monkeys!(input with i64);
+  let cycles = 10000;
+
+  let monkeys = monkeys!(input with i64);
 
   let modulo: i64 = monkeys.iter().map(|m| m.div).unique().product();
 
   let mut counts = vec![0i64; monkeys.len()]; // Can't use array here with monkeys.len()?
 
-  for monkey in &mut monkeys {
-    monkey.items.reserve(40);
-  }
-  
+  let items = monkeys
+    .iter()
+    .enumerate()
+    .map(|(i, mon)| mon.items.iter().map(move |&it| (i, it)))
+    .flatten()
+    .collect_vec();
 
-  for _ in 0..10000 {
-    for i in 0..monkeys.len() {
-      let (op, target, items) = {
-        let monkey = &mut monkeys[i];
-        (
-          monkey.op,
-          monkey.target,
-          monkey.items.drain(..).collect_vec(),
-        )
-      };
-      counts[i] += items.len() as i64;
-      for item in items {
-        let item = op(item);
-        let item = item % modulo;
-        let target = target(item);
-        monkeys[target].items.push(item)
+  for (mut monkey, mut item) in items {
+    let mut seen = HashMap::with_hasher(RandomState::with_seed(42));
+    let mut seq = vec![];
+    let mut seq_index = vec![];
+    'outer: for _ in 0..cycles {
+      seq_index.push(seq.len());
+
+      // Per cycle indices.
+      if let Err(e) = seen.try_insert(monkey | (item as usize) << 3, seq_index.len() - 1) {
+        let start = *e.entry.get();
+        let end = seq_index.len() - 1;
+
+        // Count across the full sequence.
+        let mut cycle_counts = vec![0; monkeys.len()];
+        for i in seq_index[start]..seq.len() {
+          cycle_counts[seq[i]] += 1;
+        }
+
+        let togo = cycles - end;
+        let cycle_len = end - start;
+
+        // Add contribution from full cycles.
+        let full = togo / cycle_len;
+        for (i, c) in cycle_counts.into_iter().enumerate() {
+          counts[i] += (c as i64) * (full as i64);
+        }
+
+        // Add contribution from remainder.
+        let rem = togo % cycle_len;
+        for i in seq_index[start]..seq_index[start + rem] {
+          counts[seq[i]] += 1;
+        }
+        break 'outer;
+      }
+
+      loop {
+        seq.push(monkey);
+
+        let m = &monkeys[monkey];
+        counts[monkey] += 1;
+        item = (m.op)(item);
+        item = item % modulo;
+        let old_monkey = monkey;
+        monkey = (m.target)(item);
+        if monkey < old_monkey {
+          break;
+        }
       }
     }
   }

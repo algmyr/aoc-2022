@@ -26,27 +26,31 @@ impl Pt {
 }
 
 fn bfs(input: &[Vec<u8>], starts: Vec<Pt>, target: Pt) -> AocResult<i32> {
-  let mut dq = VecDeque::new();
-  dq.extend(starts.into_iter().map(|pt| (0, pt, b'a')));
+  let mut queue = VecDeque::new();
+  queue.extend(starts.into_iter().map(|pt| (0, pt, b'a')));
 
   let mut visited = vec![vec![false; input[0].len()]; input.len()];
 
-  while let Some(v) = dq.pop_front() {
+  while let Some(v) = queue.pop_front() {
     let (dist, cur, h) = v;
 
     for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
       let p = Pt::new(cur.x + dx, cur.y + dy);
+      // In range?
       if let Some(new_h) = input
         .get(p.y as usize)
         .and_then(|row| row.get(p.x as usize))
       {
+        // Valid height?
         if h >= new_h - 1 {
+          // At target?
           if p == target {
             return Ok(dist + 1);
           }
+          // Not previously visited?
           if !visited[p.y as usize][p.x as usize] {
             visited[p.y as usize][p.x as usize] = true;
-            dq.push_back((dist + 1, p, *new_h));
+            queue.push_back((dist + 1, p, *new_h));
           }
         }
       }

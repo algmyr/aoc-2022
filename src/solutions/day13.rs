@@ -58,7 +58,6 @@ fn parse(start: usize, bs: &[u8]) -> (usize, Thing) {
       n = n * 10 + (bs[i] - b'0') as i32;
       i += 1;
     }
-    assert!(bs[i] == b',' || bs[i] == b']');
     return (i, Thing::Int(n));
   }
 

@@ -74,22 +74,22 @@ fn parse(start: usize, bs: &[u8]) -> (usize, Thing) {
   (i + 1, Thing::List(v))
 }
 
-pub fn parse_input(fname: &str) -> AocResult<Vec<(Thing, Thing)>> {
+pub fn parse_input(fname: &str) -> AocResult<Vec<Thing>> {
   let b = std::fs::read(fname)?;
   let res = b
     .trim()
-    .split_str(b"\n\n")
-    .map(|bs| {
-      let (a, b) = bs.split_once_str(b"\n").unwrap();
-      (parse(0, a).1, parse(0, b).1)
+    .split_str(b"\n")
+    .filter(|s| !s.is_empty())
+    .map(|s| {
+      parse(0, s).1
     })
     .collect_vec();
   Ok(res)
 }
 
-fn part1(input: &[(Thing, Thing)]) -> AocResult<usize> {
+fn part1(input: &[Thing]) -> AocResult<usize> {
   let mut res = 0;
-  for (i, (x, y)) in input.iter().enumerate() {
+  for (i, (x, y)) in input.iter().tuples().enumerate() {
     if x < y {
       res += i + 1;
     }
@@ -97,23 +97,20 @@ fn part1(input: &[(Thing, Thing)]) -> AocResult<usize> {
   Ok(res)
 }
 
-fn part2(pair_input: &[(Thing, Thing)]) -> AocResult<usize> {
-  let mut input = vec![];
-  for (x, y) in pair_input {
-    input.push(x);
-    input.push(y);
-  }
+fn part2(input: &[Thing]) -> AocResult<usize> {
   let a = Thing::List(vec![Thing::Int(2)]);
   let b = Thing::List(vec![Thing::Int(6)]);
 
+  let mut input = input.iter().collect_vec();
   input.push(&a);
   input.push(&b);
-  input.sort();
+
+  input.sort_unstable();
   let i = input.binary_search(&&a).unwrap();
   let j = input.binary_search(&&b).unwrap();
   Ok((i + 1) * (j + 1))
 }
 
-pub fn run(input: &[(Thing, Thing)]) -> AocResult<(usize, usize)> {
+pub fn run(input: &[Thing]) -> AocResult<(usize, usize)> {
   Ok((part1(input)?, part2(input)?))
 }

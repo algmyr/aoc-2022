@@ -29,6 +29,9 @@ pub fn read_all_nums_from_bytes<T: num::PrimInt>(bytes: &[u8]) -> AocResult<Vec<
       }
     }
   }
+  if reading {
+    res.push(unsafe { T::from(n).unwrap_unchecked() });
+  }
 
   Ok(res)
 }

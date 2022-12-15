@@ -1,4 +1,5 @@
 #![feature(iter_array_chunks)]
+#![feature(array_chunks)]
 #![feature(array_windows)]
 //#![feature(generic_const_exprs)]
 #![feature(portable_simd)]

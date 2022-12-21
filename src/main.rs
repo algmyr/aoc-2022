@@ -1,24 +1,14 @@
-use std::fmt::Display;
 use std::time::Duration;
 
+use aoc::benchmark::RunResult;
 use aoc::error::AocResult;
-use aoc::{aoc_benchmark, aoc_run, solutions, aoc_run_batch};
+use aoc::{aoc_bench, aoc_run, aoc_run_batch, solutions};
 use itertools::Itertools;
 
-struct RunResult {
-  parse_elapsed: Vec<Duration>,
-  run_elapsed: Vec<Duration>,
-  part1_result: Box<dyn Display>,
-  part2_result: Box<dyn Display>,
-}
-
-impl RunResult {
-  fn avg_elapsed(&self) -> Duration {
-    self.run_elapsed.iter().sum::<Duration>() / (self.run_elapsed.len() as u32)
-  }
-}
-
 fn pretty_time(duration: Duration) -> String {
+  if duration.is_zero() {
+    return "---------".to_string();
+  }
   let nanos = duration.as_nanos();
   let (t, unit) = if nanos > 1_000_000_000 {
     (nanos as f64 / 1e9, "s ")
@@ -33,35 +23,34 @@ fn pretty_time(duration: Duration) -> String {
   format!("{t:7.3}{unit}")
 }
 
-fn run_all(n_runs: usize) -> AocResult<()> {
-  let times = aoc_benchmark!(
-    @n_runs n_runs,
-    solutions::day01,
-    solutions::day02,
-    solutions::day03,
-    solutions::day04,
-    solutions::day05,
-    solutions::day06,
-    solutions::day07,
-    solutions::day08,
-    solutions::day09,
-    solutions::day10,
-    solutions::day11,
-    solutions::day12,
-    solutions::day13,
-    solutions::day14,
-    solutions::day15,
-    //solutions::day16,
-    //solutions::day17,
-    //solutions::day18,
-    //solutions::day19,
-    //solutions::day20,
-    //solutions::day21,
-    //solutions::day22,
-    //solutions::day23,
-    //solutions::day24,
-    //solutions::day25,
-  );
+fn run_all() -> AocResult<()> {
+  let times = vec![
+    aoc_bench!(day  1: run solutions::day01 | 1000),
+    aoc_bench!(day  2: run solutions::day02 | 1000),
+    aoc_bench!(day  3: run solutions::day03 | 1000),
+    aoc_bench!(day  4: run solutions::day04 | 1000),
+    aoc_bench!(day  5: run solutions::day05 | 1000),
+    aoc_bench!(day  6: run solutions::day06 | 1000),
+    aoc_bench!(day  7: run solutions::day07 | 1000),
+    aoc_bench!(day  8: run solutions::day08 | 1000),
+    aoc_bench!(day  9: run solutions::day09 | 1000),
+    aoc_bench!(day 10: run solutions::day10 | 1000),
+    aoc_bench!(day 11: run solutions::day11 | 1000),
+    aoc_bench!(day 12: run solutions::day12 | 1000),
+    aoc_bench!(day 13: run solutions::day13 | 1000),
+    aoc_bench!(day 14: run solutions::day14 | 1000),
+    aoc_bench!(day 15: run solutions::day15 |    1),
+    aoc_bench!(day 16: run solutions::day16 |    0),
+    aoc_bench!(day 17: run solutions::day17 | 1000),
+    aoc_bench!(day 18: run solutions::day18 |    1),
+    aoc_bench!(day 19: run solutions::day19 |    0),
+    aoc_bench!(day 20: run solutions::day20 |   10),
+    //aoc_bench!(day 21: run solutions::day21 | 1000),
+    //aoc_bench!(day 22: run solutions::day22 | 1000),
+    //aoc_bench!(day 23: run solutions::day23 | 1000),
+    //aoc_bench!(day 24: run solutions::day24 | 1000),
+    //aoc_bench!(day 25: run solutions::day25 | 1000),
+  ];
 
   fn make_row(
     parse_elapsed: Duration,
@@ -85,7 +74,7 @@ fn run_all(n_runs: usize) -> AocResult<()> {
   }
 
   fn average(times: Vec<Duration>) -> Duration {
-    let n_outliers = times.len()/10;
+    let n_outliers = times.len() / 10;
     let n_keep = times.len() - 2 * n_outliers;
     times
       .into_iter()
@@ -126,9 +115,9 @@ fn main() -> AocResult<()> {
   let n_runs = args.get(2).map(|s| s.parse().unwrap()).unwrap_or(1);
 
   if args[1].starts_with("bench") {
-    run_all(n_runs)?;
+    run_all()?;
   } else {
-    let res = aoc_run_batch!(solutions::day15, args[1], n_runs as u32);
+    let res = aoc_run_batch!(solutions::day20, args[1], n_runs as u32);
     println!("Part 1: {}", res.part1_result);
     println!("Part 2: {}", res.part2_result);
     println!("Elapsed: {}", pretty_time(res.avg_elapsed()));

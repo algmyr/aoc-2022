@@ -1,4 +1,20 @@
 // Rust macros are weird and fun
+
+use std::{time::Duration, fmt::Display};
+
+pub struct RunResult {
+  pub parse_elapsed: Vec<Duration>,
+  pub run_elapsed: Vec<Duration>,
+  pub part1_result: Box<dyn Display>,
+  pub part2_result: Box<dyn Display>,
+}
+
+impl RunResult {
+  pub fn avg_elapsed(&self) -> Duration {
+    self.run_elapsed.iter().sum::<Duration>() / (self.run_elapsed.len() as u32)
+  }
+}
+
 #[macro_export]
 macro_rules! aoc_benchmark {
   ($_n_runs:expr, $_idx:expr, @outvec $_times: ident,) => {};
@@ -18,6 +34,26 @@ macro_rules! aoc_benchmark {
     aoc_benchmark!($n_runs, 1usize, @outvec results, $($n,)*);
     results
   }}
+}
+
+#[macro_export]
+macro_rules! aoc_bench {
+  (day $idx:literal : run $head:path | $n_runs:literal) => {{
+    let day = format!("{:02}", $idx);
+    let input_file = format!("inputs/{}input", day);
+
+    if $n_runs > 0 {
+      let res = aoc_run!($head, input_file, $n_runs);
+      (day, res)
+    } else {
+      (day, RunResult { 
+        parse_elapsed: vec![std::time::Duration::ZERO],
+        run_elapsed: vec![std::time::Duration::ZERO],
+        part1_result: Box::new("Day"),
+        part2_result: Box::new("Skipped"),
+      })
+    }
+  }};
 }
 
 #[macro_export]

@@ -1,6 +1,6 @@
 use itertools::{iproduct, Itertools};
 
-use crate::error::{aoc_error, AocResult};
+use crate::error::AocResult;
 use crate::utils::read_all_signed_nums;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

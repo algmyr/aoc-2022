@@ -16,14 +16,14 @@ pub struct Blueprint {
 
 impl Blueprint {
   fn max_ore(&self) -> i32 {
-    self.ore_ore.max(self.clay_ore).max(self.obs_ore).max(self.geode_ore)
+    self
+      .ore_ore
+      .max(self.clay_ore)
+      .max(self.obs_ore)
+      .max(self.geode_ore)
   }
-  fn max_clay(&self) -> i32 {
-    self.obs_clay
-  }
-  fn max_obsidian(&self) -> i32 {
-    self.geode_obs
-  }
+  fn max_clay(&self) -> i32 { self.obs_clay }
+  fn max_obsidian(&self) -> i32 { self.geode_obs }
 
   fn try_buy_ore(&self, res: &Resources) -> Option<Resources> {
     if self.ore_ore <= res.ore {
@@ -117,15 +117,51 @@ impl Bots {
   }
 }
 
-fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
-  fn update_resources(resources: &Resources, bots: &Bots) -> Resources {
-    Resources {
-      ore: resources.ore + bots.ore,
-      clay: resources.clay + bots.clay,
-      obsidian: resources.obsidian + bots.obsidian,
-      geode: resources.geode + bots.geode,
-    }
+fn update_resources(resources: &Resources, bots: &Bots) -> Resources {
+  Resources {
+    ore: resources.ore + bots.ore,
+    clay: resources.clay + bots.clay,
+    obsidian: resources.obsidian + bots.obsidian,
+    geode: resources.geode + bots.geode,
   }
+}
+
+fn upper_bound_sim(
+  blueprint: &Blueprint,
+  lim: i32,
+  turn: i32,
+  resources: &Resources,
+  bots: &Bots,
+) -> i32 {
+  let mut resources = *resources;
+  let mut bots = *bots;
+  for _ in turn..lim {
+    // Ore robots are free.
+    bots.ore += 1;
+
+    // Buy clay.
+    if blueprint.clay_ore <= resources.ore {
+      resources.ore -= blueprint.clay_ore;
+      bots.clay += 1;
+    }
+    // Buy obsidian.
+    if blueprint.obs_clay <= resources.clay {
+      resources.clay -= blueprint.obs_clay;
+      bots.obsidian += 1;
+    }
+    // Buy geode.
+    if blueprint.geode_obs <= resources.obsidian {
+      resources.obsidian -= blueprint.geode_obs;
+      bots.geode += 1;
+    }
+
+    // Do nothing.
+    resources = update_resources(&resources, &bots);
+  }
+  resources.geode
+}
+
+fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
   let mut stack = vec![(
     0,
     Resources::new(0, 0, 0, 0),
@@ -133,9 +169,7 @@ fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
     Bots::new(0, 0, 0, 0),
   )];
   let mut max_geodes = 0;
-  let mut states = 0;
   while let Some((turn, resources, bots, mut banned)) = stack.pop() {
-    states += 1;
     // Buy ore.
     if turn == lim {
       if resources.geode > max_geodes {
@@ -144,13 +178,10 @@ fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
       continue;
     }
 
-    // Ditch completely useless states.
-    let turns_left = lim - turn + 1;
-    let max_bound = resources.geode * turns_left + turns_left * (turns_left + 1) / 2;
-    if max_bound <= max_geodes {
+    // Ditch useless states.
+    if upper_bound_sim(blueprint, lim, turn, &resources, &bots) <= max_geodes {
       continue;
     }
-    
 
     if banned.ore == 0 && bots.ore < blueprint.max_ore() {
       if let Some(new_res) = blueprint.try_buy_ore(&resources) {
@@ -208,7 +239,6 @@ fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
     let resources = update_resources(&resources, &bots);
     stack.push((turn + 1, resources, bots, banned));
   }
-  println!("states: {}", states);
   max_geodes
 }
 
@@ -221,7 +251,7 @@ fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
 fn part1(input: &[Blueprint]) -> AocResult<i32> {
   let mut res = 0;
   for blueprint in input.iter() {
-    res += blueprint.id*do_blueprint(blueprint, 24);
+    res += blueprint.id * do_blueprint(blueprint, 24);
   }
   Ok(res)
 }

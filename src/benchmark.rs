@@ -43,6 +43,7 @@ macro_rules! aoc_bench {
     let input_file = format!("inputs/{}input", day);
 
     if $n_runs > 0 {
+      println!("Timing day {day} {} times...", $n_runs);
       let res = aoc_run!($head, input_file, $n_runs);
       (day, res)
     } else {

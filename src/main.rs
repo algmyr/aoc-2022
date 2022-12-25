@@ -40,15 +40,15 @@ fn run_all() -> AocResult<()> {
     aoc_bench!(day 13: run solutions::day13 | 1000),
     aoc_bench!(day 14: run solutions::day14 | 1000),
     aoc_bench!(day 15: run solutions::day15 | 1000),
-    aoc_bench!(day 16: run solutions::day16 |    0),
+    aoc_bench!(day 16: run solutions::day16 |    3),
     aoc_bench!(day 17: run solutions::day17 | 1000),
     aoc_bench!(day 18: run solutions::day18 | 1000),
     aoc_bench!(day 19: run solutions::day19 |  100),
     aoc_bench!(day 20: run solutions::day20 |   10),
     aoc_bench!(day 21: run solutions::day21 | 1000),
     aoc_bench!(day 22: run solutions::day22 | 1000),
-    //aoc_bench!(day 23: run solutions::day23 | 1000),
-    //aoc_bench!(day 24: run solutions::day24 | 1000),
+    aoc_bench!(day 23: run solutions::day23 |   30),
+    aoc_bench!(day 24: run solutions::day24 |   10),
     //aoc_bench!(day 25: run solutions::day25 | 1000),
   ];
 
@@ -117,7 +117,7 @@ fn main() -> AocResult<()> {
   if args[1].starts_with("bench") {
     run_all()?;
   } else {
-    let res = aoc_run_batch!(solutions::day16, args[1], n_runs as u32);
+    let res = aoc_run_batch!(solutions::day23, args[1], n_runs as u32);
     println!("Part 1: {}", res.part1_result);
     println!("Part 2: {}", res.part2_result);
     println!("Elapsed: {}", pretty_time(res.avg_elapsed()));

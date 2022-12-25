@@ -149,7 +149,6 @@ fn part2(input: &[Circle], _: &[Point]) -> AocResult<i64> {
         let y = (up + down) / 2;
         let p = Point::new(x, y);
 
-        // TODO(algmyr): factor this out?
         let mut ok = true;
         for c in input {
           if c.center.dist(p) <= c.rad {

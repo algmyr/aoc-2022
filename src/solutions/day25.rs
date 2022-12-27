@@ -50,13 +50,15 @@ impl Add for BalancedQuinary {
   type Output = Self;
 
   fn add(self, other: Self) -> Self::Output {
+    use itertools::EitherOrBoth::*;
+
     let mut carry = 0;
     let mut digits = vec![];
     for pair in self.digits.into_iter().zip_longest(other.digits.into_iter()) {
       let mut sum = match pair {
-        itertools::EitherOrBoth::Both(l, r) => l+r,
-        itertools::EitherOrBoth::Left(l) => l,
-        itertools::EitherOrBoth::Right(r) => r,
+        Both(l, r) => l+r,
+        Left(l) => l,
+        Right(r) => r,
       } + carry;
       if sum < -2 {
         carry = -1;

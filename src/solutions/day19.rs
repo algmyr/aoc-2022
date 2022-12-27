@@ -25,43 +25,55 @@ impl Blueprint {
   fn max_clay(&self) -> i32 { self.obs_clay }
   fn max_obsidian(&self) -> i32 { self.geode_obs }
 
-  fn try_buy_ore(&self, res: &Resources) -> Option<Resources> {
-    if self.ore_ore <= res.ore {
-      let mut new_res = *res;
-      new_res.ore -= self.ore_ore;
-      Some(new_res)
+  fn when_buy_ore(&self, res: &Resources, bots: &Bots) -> Option<(i32, Resources)> {
+    if bots.ore != 0 {
+      let t = 0.max((self.ore_ore - res.ore).div_ceil(bots.ore));
+
+      let mut res = update_resources(res, bots, t);
+      res.ore -= self.ore_ore;
+      Some((t, res))
     } else {
       None
     }
   }
 
-  fn try_buy_clay(&self, res: &Resources) -> Option<Resources> {
-    if self.clay_ore <= res.ore {
-      let mut new_res = *res;
-      new_res.ore -= self.clay_ore;
-      Some(new_res)
+  fn when_buy_clay(&self, res: &Resources, bots: &Bots) -> Option<(i32, Resources)> {
+    if bots.ore != 0 {
+      let t = 0.max((self.clay_ore - res.ore).div_ceil(bots.ore));
+
+      let mut res = update_resources(res, bots, t);
+      res.ore -= self.clay_ore;
+      Some((t, res))
     } else {
       None
     }
   }
 
-  fn try_buy_obsidian(&self, res: &Resources) -> Option<Resources> {
-    if self.obs_ore <= res.ore && self.obs_clay <= res.clay {
-      let mut new_res = *res;
-      new_res.ore -= self.obs_ore;
-      new_res.clay -= self.obs_clay;
-      Some(new_res)
+  fn when_buy_obsidian(&self, res: &Resources, bots: &Bots) -> Option<(i32, Resources)> {
+    if bots.ore != 0 && bots.clay != 0 {
+      let t = 0
+        .max((self.obs_ore - res.ore).div_ceil(bots.ore))
+        .max((self.obs_clay - res.clay).div_ceil(bots.clay));
+
+      let mut res = update_resources(res, bots, t);
+      res.ore -= self.obs_ore;
+      res.clay -= self.obs_clay;
+      Some((t, res))
     } else {
       None
     }
   }
 
-  fn try_buy_geode(&self, res: &Resources) -> Option<Resources> {
-    if self.geode_ore <= res.ore && self.geode_obs <= res.obsidian {
-      let mut new_res = *res;
-      new_res.ore -= self.geode_ore;
-      new_res.obsidian -= self.geode_obs;
-      Some(new_res)
+  fn when_buy_geode(&self, res: &Resources, bots: &Bots) -> Option<(i32, Resources)> {
+    if bots.ore != 0 && bots.obsidian != 0 {
+      let t = 0
+        .max((self.geode_ore - res.ore).div_ceil(bots.ore))
+        .max((self.geode_obs - res.obsidian).div_ceil(bots.obsidian));
+
+      let mut res = update_resources(res, bots, t);
+      res.ore -= self.geode_ore;
+      res.obsidian -= self.geode_obs;
+      Some((t, res))
     } else {
       None
     }
@@ -117,12 +129,12 @@ impl Bots {
   }
 }
 
-fn update_resources(resources: &Resources, bots: &Bots) -> Resources {
+fn update_resources(resources: &Resources, bots: &Bots, t: i32) -> Resources {
   Resources {
-    ore: resources.ore + bots.ore,
-    clay: resources.clay + bots.clay,
-    obsidian: resources.obsidian + bots.obsidian,
-    geode: resources.geode + bots.geode,
+    ore: resources.ore + bots.ore * t,
+    clay: resources.clay + bots.clay * t,
+    obsidian: resources.obsidian + bots.obsidian * t,
+    geode: resources.geode + bots.geode * t,
   }
 }
 
@@ -156,20 +168,18 @@ fn upper_bound_sim(
     }
 
     // Do nothing.
-    resources = update_resources(&resources, &bots);
+    resources = update_resources(&resources, &bots, 1);
   }
   resources.geode
 }
 
 fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
-  let mut stack = vec![(
-    0,
-    Resources::new(0, 0, 0, 0),
-    Bots::new(1, 0, 0, 0),
-    Bots::new(0, 0, 0, 0),
-  )];
+  let mut stack = vec![(0, Resources::new(0, 0, 0, 0), Bots::new(1, 0, 0, 0))];
   let mut max_geodes = 0;
-  while let Some((turn, resources, bots, mut banned)) = stack.pop() {
+  while let Some((turn, resources, bots)) = stack.pop() {
+    if turn > lim {
+      continue;
+    }
     if turn == lim {
       if resources.geode > max_geodes {
         max_geodes = resources.geode;
@@ -183,70 +193,50 @@ fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
     }
 
     // Buy geode.
-    if banned.geode == 0 {
-      if let Some(new_res) = blueprint.try_buy_geode(&resources) {
-        let new_res = update_resources(&new_res, &bots);
-        stack.push((
-          turn + 1,
-          new_res,
-          Bots { geode: bots.geode + 1, ..bots },
-          Bots::new(0, 0, 0, 0),
-        ));
-        banned.geode = 1;
-      }
+    if let Some((delta, new_res)) = blueprint.when_buy_geode(&resources, &bots) {
+      stack.push((
+        turn + delta + 1,
+        update_resources(&new_res, &bots, 1),
+        Bots { geode: bots.geode + 1, ..bots },
+      ));
     }
     // Buy obsidian.
-    if banned.obsidian == 0 && bots.obsidian < blueprint.max_obsidian() {
-      if let Some(new_res) = blueprint.try_buy_obsidian(&resources) {
-        let new_res = update_resources(&new_res, &bots);
+    if bots.obsidian < blueprint.max_obsidian() {
+      if let Some((delta, new_res)) = blueprint.when_buy_obsidian(&resources, &bots) {
         stack.push((
-          turn + 1,
-          new_res,
+          turn + delta + 1,
+          update_resources(&new_res, &bots, 1),
           Bots { obsidian: bots.obsidian + 1, ..bots },
-          Bots::new(0, 0, 0, 0),
         ));
-        banned.obsidian = 1;
       }
     }
     // Buy clay.
-    if banned.clay == 0 && bots.clay < blueprint.max_clay() {
-      if let Some(new_res) = blueprint.try_buy_clay(&resources) {
-        let new_res = update_resources(&new_res, &bots);
+    if bots.clay < blueprint.max_clay() {
+      if let Some((delta, new_res)) = blueprint.when_buy_clay(&resources, &bots) {
         stack.push((
-          turn + 1,
-          new_res,
+          turn + delta + 1,
+          update_resources(&new_res, &bots, 1),
           Bots { clay: bots.clay + 1, ..bots },
-          Bots::new(0, 0, 0, 0),
         ));
-        banned.clay = 1;
       }
     }
     // Buy ore.
-    if banned.ore == 0 && bots.ore < blueprint.max_ore() {
-      if let Some(new_res) = blueprint.try_buy_ore(&resources) {
-        let new_res = update_resources(&new_res, &bots);
+    if bots.ore < blueprint.max_ore() {
+      if let Some((delta, new_res)) = blueprint.when_buy_ore(&resources, &bots) {
         stack.push((
-          turn + 1,
-          new_res,
+          turn + delta + 1,
+          update_resources(&new_res, &bots, 1),
           Bots { ore: bots.ore + 1, ..bots },
-          Bots::new(0, 0, 0, 0),
         ));
-        banned.ore = 1;
       }
     }
 
     // Do nothing.
-    let resources = update_resources(&resources, &bots);
-    stack.push((turn + 1, resources, bots, banned));
+    let resources = update_resources(&resources, &bots, lim - turn);
+    stack.push((lim, resources, bots));
   }
   max_geodes
 }
-
-// If you buy something, buy as early as possible.
-// Clay must be bought before obsidian.
-// Obsidian must be bought before geode.
-// The last relevant buy must be a geode.
-// You must buy at least one geode.
 
 fn part1(input: &[Blueprint]) -> AocResult<i32> {
   let mut res = 0;

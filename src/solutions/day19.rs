@@ -170,7 +170,6 @@ fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
   )];
   let mut max_geodes = 0;
   while let Some((turn, resources, bots, mut banned)) = stack.pop() {
-    // Buy ore.
     if turn == lim {
       if resources.geode > max_geodes {
         max_geodes = resources.geode;
@@ -183,29 +182,17 @@ fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
       continue;
     }
 
-    if banned.ore == 0 && bots.ore < blueprint.max_ore() {
-      if let Some(new_res) = blueprint.try_buy_ore(&resources) {
+    // Buy geode.
+    if banned.geode == 0 {
+      if let Some(new_res) = blueprint.try_buy_geode(&resources) {
         let new_res = update_resources(&new_res, &bots);
         stack.push((
           turn + 1,
           new_res,
-          Bots { ore: bots.ore + 1, ..bots },
+          Bots { geode: bots.geode + 1, ..bots },
           Bots::new(0, 0, 0, 0),
         ));
-        banned.ore = 1;
-      }
-    }
-    // Buy clay.
-    if banned.clay == 0 && bots.clay < blueprint.max_clay() {
-      if let Some(new_res) = blueprint.try_buy_clay(&resources) {
-        let new_res = update_resources(&new_res, &bots);
-        stack.push((
-          turn + 1,
-          new_res,
-          Bots { clay: bots.clay + 1, ..bots },
-          Bots::new(0, 0, 0, 0),
-        ));
-        banned.clay = 1;
+        banned.geode = 1;
       }
     }
     // Buy obsidian.
@@ -221,17 +208,30 @@ fn do_blueprint(blueprint: &Blueprint, lim: i32) -> i32 {
         banned.obsidian = 1;
       }
     }
-    // Buy geode.
-    if banned.geode == 0 {
-      if let Some(new_res) = blueprint.try_buy_geode(&resources) {
+    // Buy clay.
+    if banned.clay == 0 && bots.clay < blueprint.max_clay() {
+      if let Some(new_res) = blueprint.try_buy_clay(&resources) {
         let new_res = update_resources(&new_res, &bots);
         stack.push((
           turn + 1,
           new_res,
-          Bots { geode: bots.geode + 1, ..bots },
+          Bots { clay: bots.clay + 1, ..bots },
           Bots::new(0, 0, 0, 0),
         ));
-        banned.geode = 1;
+        banned.clay = 1;
+      }
+    }
+    // Buy ore.
+    if banned.ore == 0 && bots.ore < blueprint.max_ore() {
+      if let Some(new_res) = blueprint.try_buy_ore(&resources) {
+        let new_res = update_resources(&new_res, &bots);
+        stack.push((
+          turn + 1,
+          new_res,
+          Bots { ore: bots.ore + 1, ..bots },
+          Bots::new(0, 0, 0, 0),
+        ));
+        banned.ore = 1;
       }
     }
 

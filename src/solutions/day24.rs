@@ -1,3 +1,5 @@
+use std::hint::unreachable_unchecked;
+
 use bstr::ByteSlice;
 use itertools::Itertools;
 
@@ -80,18 +82,15 @@ pub fn parse_input(fname: &str) -> AocResult<Board> {
   Ok(Board::new(width as i32, height as i32, cols, rows))
 }
 
-fn part1(board: &Board) -> AocResult<i32> {
+fn shortest(start_t: i32, start: (i32, i32), target: (i32, i32), board: &Board) -> AocResult<i32> {
   let mut board = board.clone();
-
-  let start = (1, 0);
-  let target = (board.width - 2, board.height - 1);
 
   let ok =
     move |(x, y)| (1..board.width - 1).contains(&x) && (1..board.height - 1).contains(&y);
 
   let mut frontier = vec![start];
 
-  for t in 0.. {
+  for t in start_t.. {
     board.update_occupied(t+1);
     let mut new_frontier = vec![start];
 
@@ -113,47 +112,17 @@ fn part1(board: &Board) -> AocResult<i32> {
     frontier = new_frontier;
   }
 
-  Ok(-1)
+  unsafe { unreachable_unchecked() }
 }
 
-fn part2(board: &Board) -> AocResult<i32> {
-  let mut board = board.clone();
-
+fn solve(board: &Board) -> AocResult<(i32, i32)> {
   let start = (1, 0);
   let target = (board.width - 2, board.height - 1);
 
-  let ok =
-    move |(x, y)| (1..board.width - 1).contains(&x) && (1..board.height - 1).contains(&y);
-
-  let mut frontier = vec![(0, start)];
-
-  for t in 0.. {
-    board.update_occupied(t+1);
-    let mut new_frontier = vec![];
-
-    for (leg, (x, y)) in frontier {
-      for neigh in [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)] {
-        if neigh == target && leg % 2 == 0 {
-          if leg == 2 {
-            return Ok(t + 1);
-          }
-          new_frontier.push((leg + 1, neigh));
-        } else if neigh == start && leg % 2 == 1 {
-          new_frontier.push((leg + 1, neigh));
-        } else if ok(neigh) && !board.occupied(neigh.0, neigh.1) {
-          new_frontier.push((leg, neigh))
-        }
-      }
-      if !board.occupied(x, y) {
-        new_frontier.push((leg, (x, y)))
-      }
-    }
-    new_frontier.sort_unstable();
-    new_frontier.dedup();
-    frontier = new_frontier;
-  }
-
-  Ok(-1)
+  let t1 = shortest(0, start, target, board)?;
+  let t2 = shortest(t1, target, start, board)?;
+  let t3 = shortest(t2, start, target, board)?;
+  Ok((t1, t3))
 }
 
-pub fn run(input: &Board) -> AocResult<(i32, i32)> { Ok((part1(input)?, part2(input)?)) }
+pub fn run(input: &Board) -> AocResult<(i32, i32)> { solve(input) }

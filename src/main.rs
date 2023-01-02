@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use aoc::benchmark::RunResult;
-use aoc::{aoc_bench, aoc_run, aoc_run_batch};
+use bench::RunResult;
+use bench::{aoc_bench, aoc_run, aoc_run_batch};
 use error::AocResult;
 use itertools::Itertools;
 

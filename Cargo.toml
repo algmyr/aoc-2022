@@ -1,14 +1,12 @@
 [workspace]
-members = ["solutions", "error"]
 
 [package]
 name = "aoc"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+bench = { path = "bench" }
 solutions = { path = "solutions" }
 error = { path = "error" }
 itertools = "*"

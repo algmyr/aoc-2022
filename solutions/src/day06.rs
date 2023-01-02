@@ -1,4 +1,4 @@
-use crate::error::AocResult;
+use error::AocResult;
 
 pub fn parse_input(fname: &str) -> AocResult<Vec<u8>> {
   Ok(std::fs::read(fname)?)

@@ -3,7 +3,7 @@ use std::hint::unreachable_unchecked;
 use bstr::ByteSlice;
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 
 type Input = (u8, i32);
 

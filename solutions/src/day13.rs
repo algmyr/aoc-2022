@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use bstr::ByteSlice;
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 
 #[derive(Debug, Clone, Eq)]
 pub enum Thing {

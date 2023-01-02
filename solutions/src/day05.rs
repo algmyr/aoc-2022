@@ -1,7 +1,7 @@
 use bstr::ByteSlice;
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 use crate::utils::read_all_nums_from_bytes;
 
 type InputType = ([Vec<u8>; 9], Vec<(i8, i8, i8)>);

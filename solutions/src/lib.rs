@@ -1,3 +1,14 @@
+#![feature(iter_array_chunks)]
+#![feature(array_chunks)]
+#![feature(array_windows)]
+//#![feature(generic_const_exprs)]
+#![feature(portable_simd)]
+#![feature(iter_collect_into)]
+#![feature(map_try_insert)]
+#![feature(int_roundings)]
+
+pub mod utils;
+
 pub mod day01;
 pub mod day02;
 pub mod day03;

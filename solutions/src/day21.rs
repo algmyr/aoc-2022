@@ -4,7 +4,7 @@ use ahash::{HashMap, HashMapExt};
 use bstr::ByteSlice;
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 
 #[derive(Clone, Copy)]
 pub enum Command {

@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 use crate::utils::read_all_nums_from_bytes;
 
 #[derive(Debug)]

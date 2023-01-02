@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use aoc::benchmark::RunResult;
-use aoc::error::AocResult;
-use aoc::{aoc_bench, aoc_run, aoc_run_batch, solutions};
+use aoc::{aoc_bench, aoc_run, aoc_run_batch};
+use error::AocResult;
 use itertools::Itertools;
 
 fn pretty_time(duration: Duration) -> String {
@@ -44,7 +44,7 @@ fn run_all() -> AocResult<()> {
     aoc_bench!(day 17: run solutions::day17 | 1000),
     aoc_bench!(day 18: run solutions::day18 | 1000),
     aoc_bench!(day 19: run solutions::day19 |  100),
-    aoc_bench!(day 20: run solutions::day20 |   10),
+    aoc_bench!(day 20: run solutions::day20 |  100),
     aoc_bench!(day 21: run solutions::day21 | 1000),
     aoc_bench!(day 22: run solutions::day22 | 1000),
     aoc_bench!(day 23: run solutions::day23 |   30),
@@ -117,7 +117,7 @@ fn main() -> AocResult<()> {
   if args[1].starts_with("bench") {
     run_all()?;
   } else {
-    let res = aoc_run_batch!(solutions::day16, args[1], n_runs as u32);
+    let res = aoc_run_batch!(solutions::day23, args[1], n_runs as u32);
     println!("Part 1: {}", res.part1_result);
     println!("Part 2: {}", res.part2_result);
     println!("Elapsed: {}", pretty_time(res.avg_elapsed()));

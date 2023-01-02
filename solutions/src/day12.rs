@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use bstr::ByteSlice;
 use itertools::Itertools;
 
-use crate::error::{aoc_error, AocResult};
+use error::{aoc_error, AocResult};
 
 pub fn parse_input(fname: &str) -> AocResult<Vec<Vec<u8>>> {
   let b = std::fs::read(fname)?;

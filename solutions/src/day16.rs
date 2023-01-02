@@ -2,7 +2,7 @@ use ahash::AHashMap;
 use bstr::ByteSlice;
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 
 #[derive(Debug)]
 pub struct Valve {

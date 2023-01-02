@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 
 pub fn parse_input(fname: &str) -> AocResult<Vec<i64>> {
   crate::utils::read_all_signed_nums(fname)

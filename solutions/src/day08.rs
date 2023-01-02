@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 
 pub fn parse_input(fname: &str) -> AocResult<Vec<Vec<u8>>> {
   let b = std::fs::read(fname)?;

@@ -3,7 +3,7 @@ use std::ops::{Index, IndexMut};
 use bstr::ByteSlice;
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 
 #[derive(Clone, Copy, Debug)]
 enum Dir {

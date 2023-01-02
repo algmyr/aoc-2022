@@ -1,7 +1,7 @@
 use bstr::ByteSlice;
 use itertools::Itertools;
 
-use crate::error::{aoc_error, AocResult};
+use error::{aoc_error, AocResult};
 
 pub enum Command {
   Addx(i32),

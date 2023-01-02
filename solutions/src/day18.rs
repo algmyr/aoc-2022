@@ -2,7 +2,7 @@ use std::ops::{Index, IndexMut};
 
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 use crate::utils::read_all_nums_from_bytes;
 
 pub fn parse_input(fname: &str) -> AocResult<Vec<(i8, i8, i8)>> {

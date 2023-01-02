@@ -1,7 +1,7 @@
 use ahash::{HashMap, RandomState};
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 
 #[derive(Debug)]
 struct Monkey<T> {

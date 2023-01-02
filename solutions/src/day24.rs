@@ -3,7 +3,7 @@ use std::hint::unreachable_unchecked;
 use bstr::ByteSlice;
 use itertools::Itertools;
 
-use crate::error::AocResult;
+use error::AocResult;
 
 #[derive(Copy, Clone)]
 pub struct Blizzard {

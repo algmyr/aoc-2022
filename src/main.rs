@@ -41,7 +41,7 @@ fn run_all() -> AocResult<()> {
     aoc_bench_proc!(day 14: 100 runs, expected 838 27539),
     aoc_bench_proc!(day 15: 100 runs, expected 4907780 13639962836448_i64),
     aoc_bench_proc!(day 16: 1 runs, expected 1737 2216),
-    aoc_bench_proc!(day 17: 100 runs), // expected 3071 1523615160362_i64),
+    aoc_bench_proc!(day 17: 100 runs, expected 3071 1523615160362_i64),
     aoc_bench_proc!(day 18: 100 runs, expected 4450 2564),
     aoc_bench_proc!(day 19:  10 runs, expected 1565 10672),
     aoc_bench_proc!(day 20:  10 runs, expected 11616 9937909178485_i64),
@@ -117,7 +117,7 @@ fn main() -> AocResult<()> {
   if args[1].starts_with("bench") {
     run_all()?;
   } else {
-    let res = aoc_run_batch!(solutions::day08, args[1], n_runs as u32);
+    let res = aoc_run_batch!(solutions::day17, args[1], n_runs as u32);
     println!("Part 1: {}", res.part1_result);
     println!("Part 2: {}", res.part2_result);
     println!("Elapsed: {}", pretty_time(res.avg_elapsed()));

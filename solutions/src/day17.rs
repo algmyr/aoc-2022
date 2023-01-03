@@ -200,7 +200,7 @@ fn part2(input: &[u8]) -> AocResult<i64> {
   let top_delta = 2613;
 
   let lim = 1000000000000;
-  let to_sim = lim%cycle_len;
+  let to_sim = lim%cycle_len + cycle_len;
 
   for rock in rocks.take(to_sim) {
     simulate1(&mut board, rock, &mut jets);

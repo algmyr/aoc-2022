@@ -29,7 +29,7 @@ fn solve(input: &[Vec<u8>]) -> AocResult<(i32, i32)> {
           // Part 1: Compare with max so far.
           if mx < h as i32 {
             mx = h as i32;
-            visible[$i][$j] = true;
+            visible[$ix_i][$ix_j] = true;
           }
 
           // Part 2: Use monotonic stack to find the closest tree with

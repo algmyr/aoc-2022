@@ -1,4 +1,4 @@
-use crate::error::AocResult;
+use error::AocResult;
 
 pub fn num_from_bytes<T: num::PrimInt>(bytes: &[u8]) -> T {
   let mut n = 0;

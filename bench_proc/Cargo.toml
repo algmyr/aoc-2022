@@ -1,0 +1,18 @@
+[package]
+name = "bench_proc"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bench = { path = "../bench" }
+quote = "*"
+proc-macro2 = "*"
+
+[dependencies.syn]
+version = "*"
+features = ["parsing"]

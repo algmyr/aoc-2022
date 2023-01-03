@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use bench::RunResult;
-use bench::{aoc_bench, aoc_run, aoc_run_batch};
+use bench::aoc_run_batch;
+use bench_proc::aoc_bench_proc;
 use error::AocResult;
 use itertools::Itertools;
 
@@ -25,31 +25,31 @@ fn pretty_time(duration: Duration) -> String {
 
 fn run_all() -> AocResult<()> {
   let times = vec![
-    aoc_bench!(day  1: run solutions::day01 | 1000),
-    aoc_bench!(day  2: run solutions::day02 | 1000),
-    aoc_bench!(day  3: run solutions::day03 | 1000),
-    aoc_bench!(day  4: run solutions::day04 | 1000),
-    aoc_bench!(day  5: run solutions::day05 | 1000),
-    aoc_bench!(day  6: run solutions::day06 | 1000),
-    aoc_bench!(day  7: run solutions::day07 | 1000),
-    aoc_bench!(day  8: run solutions::day08 | 1000),
-    aoc_bench!(day  9: run solutions::day09 | 1000),
-    aoc_bench!(day 10: run solutions::day10 | 1000),
-    aoc_bench!(day 11: run solutions::day11 | 1000),
-    aoc_bench!(day 12: run solutions::day12 | 1000),
-    aoc_bench!(day 13: run solutions::day13 | 1000),
-    aoc_bench!(day 14: run solutions::day14 | 1000),
-    aoc_bench!(day 15: run solutions::day15 | 1000),
-    aoc_bench!(day 16: run solutions::day16 |   10),
-    aoc_bench!(day 17: run solutions::day17 | 1000),
-    aoc_bench!(day 18: run solutions::day18 | 1000),
-    aoc_bench!(day 19: run solutions::day19 |  100),
-    aoc_bench!(day 20: run solutions::day20 |  100),
-    aoc_bench!(day 21: run solutions::day21 | 1000),
-    aoc_bench!(day 22: run solutions::day22 | 1000),
-    aoc_bench!(day 23: run solutions::day23 |   30),
-    aoc_bench!(day 24: run solutions::day24 |   30),
-    aoc_bench!(day 25: run solutions::day25 | 1000),
+    aoc_bench_proc!(day  1: 100 runs, expected 71471 211189),
+    aoc_bench_proc!(day  2: 100 runs, expected 10310 14859),
+    aoc_bench_proc!(day  3: 100 runs, expected 7831 2683),
+    aoc_bench_proc!(day  4: 100 runs, expected 464 770),
+    aoc_bench_proc!(day  5: 100 runs, expected "VJSFHWGFT" "LCTQFBVZV"),
+    aoc_bench_proc!(day  6: 100 runs, expected 1578 2178),
+    aoc_bench_proc!(day  7: 100 runs, expected 1543140 1117448),
+    aoc_bench_proc!(day  8: 100 runs), // expected 1538 496125
+    aoc_bench_proc!(day  9: 100 runs, expected 6339 2541),
+    aoc_bench_proc!(day 10: 100 runs), //expected 13860 "RZHFGJCB"),
+    aoc_bench_proc!(day 11: 100 runs, expected 110220 19457438264_i64),
+    aoc_bench_proc!(day 12: 100 runs, expected 456 454),
+    aoc_bench_proc!(day 13: 100 runs, expected 6420 22000),
+    aoc_bench_proc!(day 14: 100 runs, expected 838 27539),
+    aoc_bench_proc!(day 15: 100 runs, expected 4907780 13639962836448_i64),
+    aoc_bench_proc!(day 16: 1 runs, expected 1737 2216),
+    aoc_bench_proc!(day 17: 100 runs), // expected 3071 1523615160362_i64),
+    aoc_bench_proc!(day 18: 100 runs, expected 4450 2564),
+    aoc_bench_proc!(day 19:  10 runs, expected 1565 10672),
+    aoc_bench_proc!(day 20:  10 runs, expected 11616 9937909178485_i64),
+    aoc_bench_proc!(day 21: 100 runs, expected 256997859093114.0 3952288690726_i64),
+    aoc_bench_proc!(day 22: 100 runs, expected 30552 184106),
+    aoc_bench_proc!(day 23: 3 runs, expected 3987 938),
+    aoc_bench_proc!(day 24: 3 runs, expected 242 720),
+    aoc_bench_proc!(day 25: 100 runs, expected "2-20=01--0=0=0=2-120" "Done!"),
   ];
 
   fn make_row(

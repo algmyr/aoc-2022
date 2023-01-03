@@ -16,48 +16,6 @@ impl RunResult {
 }
 
 #[macro_export]
-macro_rules! aoc_benchmark {
-  ($_n_runs:expr, $_idx:expr, @outvec $_times: ident,) => {};
-
-  ($n_runs:expr, $idx:expr, @outvec $results: ident, $head:path, $($tail:path,)*) => {
-    let day = format!("{:02}", $idx);
-    let input_file = format!("inputs/{}input", day);
-
-    let res = aoc_run!($head, input_file, $n_runs);
-    $results.push((day, res));
-
-    aoc_benchmark!($n_runs, $idx + 1usize, @outvec $results, $($tail,)*);
-  };
-
-  (@n_runs $n_runs:expr, $($n:path),* $(,)?) => {{
-    let mut results = vec![];
-    aoc_benchmark!($n_runs, 1usize, @outvec results, $($n,)*);
-    results
-  }}
-}
-
-#[macro_export]
-macro_rules! aoc_bench {
-  (day $idx:literal : run $head:path | $n_runs:literal) => {{
-    let day = format!("{:02}", $idx);
-    let input_file = format!("inputs/{}input", day);
-
-    if $n_runs > 0 {
-      println!("Timing day {day} {} times...", $n_runs);
-      let res = aoc_run!($head, input_file, $n_runs);
-      (day, res)
-    } else {
-      (day, RunResult { 
-        parse_elapsed: vec![std::time::Duration::ZERO],
-        run_elapsed: vec![std::time::Duration::ZERO],
-        part1_result: Box::new("Day"),
-        part2_result: Box::new("Skipped"),
-      })
-    }
-  }};
-}
-
-#[macro_export]
 macro_rules! aoc_run_batch {
   ($module: path, $fname: expr, $n: expr) => {{
     let mut run_elapsed = vec![];
@@ -77,7 +35,7 @@ macro_rules! aoc_run_batch {
     run_elapsed.push(t.elapsed()/($n));
     parse_elapsed.push(std::time::Duration::ZERO);
 
-    RunResult {
+    bench::RunResult {
       parse_elapsed,
       run_elapsed,
       part1_result: Box::new(res1),
@@ -108,7 +66,7 @@ macro_rules! aoc_run {
     }
     let (res1, res2) = run_once()?;
 
-    RunResult {
+    bench::RunResult {
       parse_elapsed,
       run_elapsed,
       part1_result: Box::new(res1),

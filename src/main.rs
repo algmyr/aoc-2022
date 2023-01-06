@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::time::Duration;
 
 use bench::aoc_run_batch;
@@ -21,6 +22,12 @@ fn pretty_time(duration: Duration) -> String {
   };
 
   format!("{t:7.3}{unit}")
+}
+
+fn truncate<const M: usize, T: Clone + Default, const N: usize>(arr: [T; N]) -> [T; M] {
+  let mut dst: [T; M] = std::array::from_fn(|_| Default::default());
+  dst.clone_from_slice(&arr[..M]);
+  dst
 }
 
 fn run_all() -> AocResult<()> {
@@ -52,27 +59,6 @@ fn run_all() -> AocResult<()> {
     aoc_bench_proc!(day 25: 1000 runs, expected "2-20=01--0=0=0=2-120" "Done!"),
   ];
 
-  fn make_row(
-    parse_elapsed: Duration,
-    run_elapsed: Duration,
-    total: Duration,
-    max: Duration,
-  ) -> (String, String) {
-    let fraction = run_elapsed.as_secs_f32() / total.as_secs_f32();
-    let max_fraction = run_elapsed.as_secs_f32() / max.as_secs_f32();
-
-    let width = 20.0;
-    let x = (2.0 * width * max_fraction) as usize;
-    let bar = "─".repeat(x / 2) + if x % 2 == 1 { "╴" } else { "" };
-
-    let run_time = pretty_time(run_elapsed);
-    let parse_time = pretty_time(parse_elapsed);
-    (
-      format!("{:9} {:9} {:6.2}%", parse_time, run_time, 100.0 * fraction),
-      bar,
-    )
-  }
-
   fn average(times: Vec<Duration>) -> Duration {
     let n_outliers = times.len() / 10;
     let n_keep = times.len() - 2 * n_outliers;
@@ -90,23 +76,113 @@ fn run_all() -> AocResult<()> {
     .map(|(label, x)| (label, average(x.parse_elapsed), average(x.run_elapsed)))
     .collect_vec();
 
-  let run_max: Duration = avg_times.iter().map(|(_, _parse, run)| *run).max().unwrap();
-  let run_total: Duration = avg_times.iter().map(|(_, _parse, run)| run).sum();
-  let parse_total: Duration = avg_times.iter().map(|(_, parse, _run)| parse).sum();
+  fn make_row<const N: usize>(
+    prefix: &str,
+    parse_elapsed: Duration,
+    run_elapsed: Duration,
+    total: Duration,
+    max: Duration,
+  ) -> [String; N] {
+    let fraction = run_elapsed.as_secs_f32() / total.as_secs_f32();
+    let max_fraction = run_elapsed.as_secs_f32() / max.as_secs_f32();
 
-  println!("");
-  println!("      {:^9} {:^9} ", "Parse", "Run");
-  println!("    ╭─────────────────────────────╮");
-  for (name, parse_elapsed, run_elapsed) in avg_times {
-    let (contents, bar) = make_row(parse_elapsed, run_elapsed, run_total, run_max);
-    println!("{:3} │ {} ├{}", name, contents, bar);
+    let width = 20.0;
+    let x = (2.0 * width * max_fraction) as usize;
+    let bar = "─".repeat(x / 2) + if x % 2 == 1 { "╴" } else { "" };
+    truncate([
+      prefix.to_string(),
+      pretty_time(parse_elapsed),
+      pretty_time(run_elapsed),
+      format!("{:.2}%", 100.0 * fraction),
+      bar,
+    ])
   }
-  println!("    ├─────────────────────────────┤");
-  let (contents, _) = make_row(parse_total, run_total, run_total, run_max);
-  println!("Sum │ {} │", contents);
-  println!("    ╰─────────────────────────────╯");
-  println!("");
+
+  let run_max = avg_times.iter().map(|(_, _parse, run)| *run).max().unwrap();
+  let run_total = avg_times.iter().map(|(_, _parse, run)| run).sum();
+  let parse_total = avg_times.iter().map(|(_, parse, _run)| parse).sum();
+
+  let mut table = Table::new();
+  use Row::*;
+  table.push(Row::header("", "Parse", "Run"));
+  for (name, parse_elapsed, run_elapsed) in avg_times {
+    table.push(Data(make_row(
+      &name,
+      parse_elapsed,
+      run_elapsed,
+      run_total,
+      run_max,
+    )));
+  }
+  table.push(Summary(make_row(
+    "Sum",
+    parse_total,
+    run_total,
+    run_total,
+    run_max,
+  )));
+
+  println!("\n{table}\n");
   Ok(())
+}
+
+enum Row {
+  Header([String; 3]),
+  Data([String; 5]),
+  Summary([String; 4]),
+}
+
+impl Row {
+  fn header(a: &str, b: &str, c: &str) -> Self {
+    Self::Header([a.to_string(), b.to_string(), c.to_string()])
+  }
+}
+
+struct Table {
+  data: Vec<Row>,
+}
+
+impl Table {
+  fn new() -> Self { Table { data: vec![] } }
+  fn push(&mut self, s: Row) { self.data.push(s); }
+}
+
+impl Display for Table {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(row: &Row, widths: &[usize; 4]) -> String {
+      use Row::*;
+      let [w0, w1, w2, w3] = widths;
+      match row {
+        Header([prefix, parse, run]) => {
+          format!("{:w0$}   {:^w1$} {:^w2$}", prefix, parse, run)
+        }
+        Data([prefix, parse, run, perc, bar]) => format!(
+          "{:w0$} │ {:>w1$} {:>w2$} {:>w3$} ├{}",
+          prefix, parse, run, perc, bar
+        ),
+        Summary([prefix, parse, run, perc]) => format!(
+          "{:w0$} │ {:>w1$} {:>w2$} {:>w3$} │",
+          prefix, parse, run, perc
+        ),
+      }
+    }
+    fn line(chars: [&str; 3], widths: &[usize; 4]) -> String {
+      let [w0, w1, w2, w3] = widths;
+      " ".repeat(w0 + 1) + chars[0] + &chars[1].repeat(4 + w1 + w2 + w3) + chars[2]
+    }
+    let header = self.data.first().unwrap();
+    let summary = self.data.last().unwrap();
+    let data = &self.data[1..self.data.len() - 1];
+    let widths = [3, 9, 9, 7];
+    let mut lines = vec![];
+    lines.push(fmt(header, &widths));
+    lines.push(line(["╭", "─", "╮"], &widths));
+    lines.extend(data.iter().map(|s| fmt(s, &widths)));
+    lines.push(line(["├", "─", "┤"], &widths));
+    lines.push(fmt(summary, &widths));
+    lines.push(line(["╰", "─", "╯"], &widths));
+    write!(f, "{}", lines.join("\n"))
+  }
 }
 
 fn main() -> AocResult<()> {

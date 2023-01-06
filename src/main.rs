@@ -156,10 +156,14 @@ impl Display for Table {
         Header([prefix, parse, run]) => {
           format!("{:w0$}   {:^w1$} {:^w2$}", prefix, parse, run)
         }
-        Data([prefix, parse, run, perc, bar]) => format!(
-          "{:w0$} │ {:>w1$} {:>w2$} {:>w3$} ├{}",
-          prefix, parse, run, perc, bar
-        ),
+        Data([prefix, parse, run, perc, bar]) => {
+          let content = format!("{parse:>w1$} {run:>w2$} {perc:>w3$}");
+          if run.ends_with("us") || run.ends_with("ns") {
+            format!("{prefix:w0$} │ \x1b[92m{content}\x1b[0m ├{bar}")
+          } else {
+            format!("{prefix:w0$} │ \x1b[91m{content}\x1b[0m ├{bar}")
+          }
+        },
         Summary([prefix, parse, run, perc]) => format!(
           "{:w0$} │ {:>w1$} {:>w2$} {:>w3$} │",
           prefix, parse, run, perc

@@ -51,7 +51,7 @@ impl Circle {
 pub fn parse_input(fname: &str) -> AocResult<(Vec<Circle>, Vec<Point>)> {
   let mut circles = vec![];
   let mut beacons = vec![];
-  for &[sx, sy, bx, by] in  read_all_signed_nums(fname)?.array_chunks() {
+  for &[sx, sy, bx, by] in  read_all_signed_nums(fname)?.as_chunks().0 {
     let s = Point::new(sx, sy);
     let b = Point::new(bx, by);
     circles.push(Circle::new(s, b));

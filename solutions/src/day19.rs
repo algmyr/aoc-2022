@@ -84,7 +84,7 @@ pub fn parse_input(fname: &str) -> AocResult<Vec<Blueprint>> {
   let b = std::fs::read(fname)?;
 
   let res = read_all_nums_from_bytes(&b)?
-    .array_chunks()
+    .as_chunks().0.iter()
     .map(
       |&[id, ore_ore, clay_ore, obs_ore, obs_clay, geode_ore, geode_clay]| Blueprint {
         id,
